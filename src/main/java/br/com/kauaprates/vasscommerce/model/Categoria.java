@@ -6,7 +6,7 @@ public class Categoria {
     private String nome;
     private String descricao;
 
-    public categoria(Long id, String imagemSimboloUrl, String nome, String descricao) {
+    public Categoria(Long id, String imagemSimboloUrl, String nome, String descricao) {
         this.id = id;
         this.imagemSimboloUrl = imagemSimboloUrl;
         this.nome = nome;

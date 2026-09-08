@@ -51,15 +51,47 @@ public class CategoriaController {
     }
 
     @GetMapping("/{idcategoria}/produto")
-    public ResponseEntity<List<Produto>> listarProdutosDaCategoria(@PathVariable Long idcategoria) {
-        List<Produto> produtosDaCategoria = new ArrayList<>();
+    public ResponseEntity<List<Produto>> listarProdutosDaCategoria(
+            @PathVariable Long idcategoria,
+            @RequestParam(name = "nome", required = false) String nome,
+            @RequestParam(name = "valorMinimo", required = false) BigDecimal valorMinimo,
+            @RequestParam(name = "valorMaximo", required = false) BigDecimal valorMaximo) {
+
+        boolean categoriaExiste = categorias.stream().anyMatch(c -> c.getId().equals(idcategoria));
+        if (!categoriaExiste) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Produto> filtrados = new ArrayList<>();
 
         for (Produto produto : produtos) {
             if (produto.getIdCategoria().equals(idcategoria)) {
-                produtosDaCategoria.add(produto);
+                boolean atendeFiltro = true;
+
+                if (nome != null && !nome.isBlank()) {
+                    if (!produto.getNome().toLowerCase().contains(nome.toLowerCase())) {
+                        atendeFiltro = false;
+                    }
+                }
+
+                if (valorMinimo != null) {
+                    if (produto.getValorUnitario().compareTo(valorMinimo) < 0) {
+                        atendeFiltro = false;
+                    }
+                }
+
+                if (valorMaximo != null) {
+                    if (produto.getValorUnitario().compareTo(valorMaximo) > 0) {
+                        atendeFiltro = false;
+                    }
+                }
+
+                if (atendeFiltro) {
+                    filtrados.add(produto);
+                }
             }
         }
 
-        return ResponseEntity.ok(produtosDaCategoria);
+        return ResponseEntity.ok(filtrados);
     }
 }
